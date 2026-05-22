@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff6b35">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Accountability">
+<link rel="manifest" href="manifest.json">
+<title>💰 Accountability</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #fff8f0; font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', 'Gill Sans MT', Candara, sans-serif; color: #2d0a00; min-height: 100vh; overflow-x: hidden; }
+  .blob1 { position: fixed; top: -120px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(255,107,53,0.2) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  .blob2 { position: fixed; bottom: 80px; left: -100px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(4,231,98,0.15) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(255,248,240,0.95); backdrop-filter: blur(16px); border-bottom: 2px solid rgba(255,107,53,0.12); }
+  .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 20px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 20px; }
+  .logo-text { font-size: 12px; font-weight: 800; letter-spacing: 0.18em; color: #ff6b35; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .streak-pill { background: linear-gradient(135deg,#ff6b35,#ff8c5a); color: #fff; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(255,107,53,0.4); display: none; }
+  .saving-badge { background: #04e762; color: #003d1a; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; display: none; }
+  .frase-bar { background: rgba(255,107,53,0.06); border-top: 1px solid rgba(255,107,53,0.1); padding: 8px 20px; display: flex; align-items: center; gap: 8px; }
+  .frase-inner { flex: 1; overflow: hidden; }
+  .frase-txt { font-size: 11px; color: #2d0a00; font-style: italic; font-weight: 600; line-height: 1.4; display: block; }
+  .frase-autor { font-size: 10px; color: #ff6b35; font-weight: 800; letter-spacing: 0.05em; display: block; margin-top: 2px; }
+  main { max-width: 600px; margin: 0 auto; padding: 24px 20px 100px; position: relative; z-index: 1; }
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  .page-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+  .page-num { font-size: 11px; font-weight: 800; color: rgba(255,107,53,0.4); letter-spacing: 0.2em; }
+  h2 { font-size: 22px; font-weight: 800; color: #2d0a00; }
+  .hint { font-size: 12px; color: rgba(45,10,0,0.45); margin-bottom: 20px; margin-top: -10px; }
+  .streak-card { background: #fff; border: 2px solid rgba(255,107,53,0.2); border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 16px rgba(255,107,53,0.08); }
+  .streak-info { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .streak-emoji { font-size: 36px; }
+  .streak-num { font-size: 20px; font-weight: 800; color: #ff6b35; }
+  .streak-sub { font-size: 11px; color: rgba(45,10,0,0.4); margin-top: 2px; }
+  .streak-dots { display: flex; gap: 6px; justify-content: space-between; }
+  .streak-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .streak-dot { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,107,53,0.12); border: 2px solid rgba(255,107,53,0.2); }
+  .streak-dot.on { background: #ff6b35; border-color: #ff6b35; box-shadow: 0 2px 8px rgba(255,107,53,0.4); }
+  .streak-day-lbl { font-size: 8px; font-weight: 800; color: rgba(45,10,0,0.35); letter-spacing: 0.05em; }
+  .chart-card { background: #fff; border: 2px solid rgba(255,107,53,0.15); border-radius: 18px; padding: 16px 18px; margin-bottom: 18px; }
+  .chart-title { font-size: 12px; font-weight: 800; color: #ff6b35; margin-bottom: 14px; letter-spacing: 0.05em; }
+  .chart-bars { display: flex; gap: 10px; align-items: flex-end; height: 80px; }
+  .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+  .chart-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+  .chart-bar { width: 100%; background: linear-gradient(180deg,#ff6b35,#ff8c5a); border-radius: 6px 6px 0 0; min-height: 4px; transition: height 0.5s ease; }
+  .chart-val { font-size: 13px; font-weight: 800; color: #ff6b35; }
+  .chart-lbl { font-size: 9px; font-weight: 800; color: rgba(45,10,0,0.35); letter-spacing: 0.05em; }
+  .empty-state { border: 2px dashed rgba(255,107,53,0.25); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; background: rgba(255,107,53,0.03); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .empty-text { color: rgba(45,10,0,0.4); font-size: 14px; font-weight: 700; }
+  .goal-card { background: linear-gradient(135deg,#ff6b35,#ff8c5a); border-radius: 20px; padding: 20px; margin-bottom: 24px; box-shadow: 0 8px 28px rgba(255,107,53,0.35); }
+  .goal-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.25em; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
+  .goal-title { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 12px; line-height: 1.3; }
+  .goal-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { background: rgba(255,255,255,0.2); border-radius: 30px; padding: 5px 12px; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: #fff; }
+  .progress-wrap { display: flex; align-items: center; gap: 10px; }
+  .progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.25); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #04e762; border-radius: 3px; transition: width 0.6s ease; box-shadow: 0 0 8px #04e762; }
+  .progress-txt { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.9); white-space: nowrap; }
+  .form { display: flex; flex-direction: column; gap: 2px; }
+  label { font-size: 10px; font-weight: 800; letter-spacing: 0.18em; color: #ff6b35; text-transform: uppercase; margin-top: 16px; margin-bottom: 5px; display: block; }
+  input[type="text"], input[type="date"], textarea { background: #fff; border: 2px solid rgba(255,107,53,0.18); border-radius: 12px; padding: 12px 14px; color: #2d0a00; font-size: 14px; font-family: inherit; font-weight: 600; outline: none; width: 100%; transition: border-color 0.2s; }
+  input:focus, textarea:focus { border-color: #ff6b35; box-shadow: 0 0 0 3px rgba(255,107,53,0.12); }
+  input::placeholder, textarea::placeholder { color: rgba(45,10,0,0.22); font-weight: 500; }
+  textarea { resize: vertical; min-height: 90px; }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.3) sepia(1) saturate(3) hue-rotate(330deg); }
+  .action-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .action-bubble { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#ff6b35,#ff8c5a); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; box-shadow: 0 3px 10px rgba(255,107,53,0.4); }
+  .action-row input { flex: 1; background: #fff; border: 2px solid rgba(255,107,53,0.18); border-radius: 12px; padding: 12px 14px; color: #2d0a00; font-size: 14px; font-family: inherit; font-weight: 600; outline: none; width: auto; }
+  .alert-box { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,107,53,0.07); border: 2px solid rgba(255,107,53,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 14px; margin-bottom: 18px; font-size: 13px; color: #2d0a00; line-height: 1.5; }
+  /* Alert streak em risco */
+  .alert-danger { background: rgba(255,50,50,0.07); border-color: rgba(255,50,50,0.3); }
+  .alert-success { background: rgba(4,231,98,0.07); border-color: rgba(4,231,98,0.3); color: #005a20; }
+  .stats-row { display: flex; gap: 10px; margin-top: 18px; }
+  .stat-card { flex: 1; background: #fff; border: 2px solid rgba(255,107,53,0.12); border-radius: 14px; padding: 14px 8px; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 800; color: #ff6b35; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 9px; font-weight: 800; color: rgba(45,10,0,0.35); letter-spacing: 0.12em; text-transform: uppercase; }
+  .hist-card { background: #fff; border: 2px solid rgba(255,107,53,0.12); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; }
+  .hist-date { font-size: 12px; font-weight: 800; color: #2d0a00; margin-bottom: 8px; }
+  .hist-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hist-chip { font-size: 11px; font-weight: 700; background: rgba(255,107,53,0.08); color: #cc4400; padding: 3px 10px; border-radius: 20px; }
+  .hist-chip.done { background: rgba(4,231,98,0.12); color: #006b2a; }
+  .check-row { display: flex; align-items: center; gap: 14px; cursor: pointer; margin-bottom: 22px; padding: 14px; background: #fff; border-radius: 14px; border: 2px solid rgba(255,107,53,0.18); user-select: none; transition: all 0.2s; }
+  .check-row.on { background: rgba(4,231,98,0.07); border-color: #04e762; }
+  .check-box { width: 26px; height: 26px; border: 2px solid rgba(255,107,53,0.4); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; font-weight: 800; color: #fff; transition: all 0.2s; }
+  .check-box.on { background: #04e762; border-color: #04e762; color: #003d1a; box-shadow: 0 0 12px rgba(4,231,98,0.5); }
+  .check-lbl { font-size: 14px; font-weight: 700; color: #2d0a00; }
+  /* Revisão insights */
+  .insights-card { background: #fff; border: 2px solid rgba(255,107,53,0.2); border-radius: 16px; padding: 18px; margin-bottom: 24px; }
+  .insights-title { font-size: 11px; font-weight: 800; letter-spacing: 0.15em; color: #ff6b35; text-transform: uppercase; margin-bottom: 14px; }
+  .insight-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,107,53,0.08); font-size: 13px; line-height: 1.5; color: #2d0a00; }
+  .insight-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  /* Conquistas */
+  .conquistas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+  .conquista-card { background: #fff; border: 2px solid rgba(45,10,0,0.08); border-radius: 16px; padding: 16px 12px; text-align: center; opacity: 0.45; transition: all 0.3s; }
+  .conquista-card.unlocked { border-color: rgba(255,107,53,0.4); opacity: 1; box-shadow: 0 4px 16px rgba(255,107,53,0.15); }
+  .conquista-emoji { font-size: 32px; margin-bottom: 6px; }
+  .conquista-nome { font-size: 13px; font-weight: 800; color: #2d0a00; margin-bottom: 4px; }
+  .conquista-desc { font-size: 10px; color: rgba(45,10,0,0.45); line-height: 1.4; }
+  .frase-card { background: linear-gradient(135deg,#fff8f0,#fff); border: 2px solid rgba(255,107,53,0.2); border-radius: 18px; padding: 22px; margin-top: 8px; }
+  .frase-card-txt { font-size: 15px; font-style: italic; font-weight: 600; color: #2d0a00; line-height: 1.6; margin-bottom: 10px; }
+  .frase-card-autor { font-size: 12px; font-weight: 800; color: #ff6b35; margin-bottom: 16px; }
+  .complete-badge { text-align: center; margin-top: 24px; padding: 16px; background: linear-gradient(135deg,#04e762,#00c851); border-radius: 14px; font-size: 14px; font-weight: 800; color: #003d1a; box-shadow: 0 4px 20px rgba(4,231,98,0.35); }
+  /* Compartilhar */
+  .share-section { margin-top: 28px; }
+  .period-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0; }
+  .period-btn { flex: 1; min-width: 60px; padding: 12px 8px; background: #fff; border: 2px solid rgba(255,107,53,0.2); border-radius: 12px; font-size: 13px; font-weight: 800; color: rgba(45,10,0,0.45); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .period-btn.active { background: linear-gradient(135deg,#ff6b35,#ff8c5a); border-color: #ff6b35; color: #fff; box-shadow: 0 4px 12px rgba(255,107,53,0.35); }
+  /* Parceiro */
+  .partner-card { background: #fff; border: 2px solid rgba(255,107,53,0.2); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+  .partner-card-title { font-size: 11px; font-weight: 800; letter-spacing: 0.15em; color: #ff6b35; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .partner-set { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+  .partner-input-wrap { flex: 1; }
+  .partner-save-btn { background: linear-gradient(135deg,#ff6b35,#ff8c5a); border: none; border-radius: 12px; padding: 12px 18px; color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+  .partner-info { display: flex; align-items: center; gap: 10px; background: rgba(255,107,53,0.06); border-radius: 12px; padding: 12px 14px; }
+  .partner-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#ff6b35,#ff8c5a); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .partner-details { flex: 1; }
+  .partner-name { font-size: 14px; font-weight: 800; color: #2d0a00; }
+  .partner-contact { font-size: 11px; color: rgba(45,10,0,0.45); margin-top: 2px; }
+  .partner-remove { background: none; border: none; font-size: 18px; cursor: pointer; color: rgba(45,10,0,0.3); padding: 4px; }
+  .partner-send-btn { width: 100%; padding: 16px; background: linear-gradient(135deg,#25d366,#128c7e); border: none; border-radius: 14px; color: #fff; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 16px rgba(37,211,102,0.35); margin-top: 12px; transition: transform 0.15s; }
+  .partner-send-btn:active { transform: scale(0.97); }
+  .partner-send-btn.pending { background: linear-gradient(135deg,#ff6b35,#ff8c5a); box-shadow: 0 4px 16px rgba(255,107,53,0.35); animation: pulse 2s infinite; }
+  .partner-last-sent { font-size: 10px; color: rgba(45,10,0,0.35); text-align: center; margin-top: 8px; letter-spacing: 0.05em; }
+  @keyframes pulse { 0%,100%{box-shadow:0 4px 16px rgba(255,107,53,0.35);} 50%{box-shadow:0 4px 28px rgba(255,107,53,0.6);} }
+  .share-title { font-size: 11px; font-weight: 800; letter-spacing: 0.15em; color: #ff6b35; text-transform: uppercase; margin-bottom: 10px; }
+  #shareCanvas { display: none; }
+  /* Conquista popup */
+  .conquista-popup { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 999; background: linear-gradient(135deg,#ff6b35,#ff8c5a); border-radius: 20px; padding: 16px 24px; display: none; align-items: center; gap: 16px; box-shadow: 0 8px 40px rgba(255,107,53,0.5); min-width: 280px; max-width: 340px; }
+  .conquista-popup.show { display: flex; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  .conquista-pop-title { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; color: rgba(255,255,255,0.8); margin-bottom: 2px; }
+  .conquista-pop-name { font-size: 18px; font-weight: 800; color: #fff; }
+  .conquista-pop-desc { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+  /* Streak alert banner */
+  .streak-alert { padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 13px; font-weight: 700; display: none; align-items: center; gap: 10px; }
+  .streak-alert.show { display: flex; animation: fadeIn 0.3s ease; }
+  .streak-alert.danger { background: rgba(255,50,50,0.08); border: 2px solid rgba(255,50,50,0.25); color: #8b0000; }
+  .streak-alert.congrats { background: rgba(4,231,98,0.08); border: 2px solid rgba(4,231,98,0.3); color: #005a20; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,248,240,0.97); backdrop-filter: blur(20px); border-top: 2px solid rgba(255,107,53,0.12); display: flex; padding: 8px 0 10px; z-index: 100; }
+  .nav-btn { flex: 1; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; border-radius: 10px; transition: all 0.2s; font-family: inherit; }
+  .nav-btn.active { background: rgba(255,107,53,0.1); }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; color: rgba(45,10,0,0.35); text-transform: uppercase; }
+  .nav-btn.active .nav-label { color: #ff6b35; }
+  .hist-section { margin-top: 32px; }
+  .coach-intro { background: linear-gradient(135deg,#ff6b35,#ff8c5a); border-radius: 18px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+  .coach-avatar { font-size: 42px; flex-shrink: 0; }
+  .coach-intro-title { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .coach-intro-sub { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+  .coach-messages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; min-height: 60px; }
+  .coach-msg { padding: 14px 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; font-weight: 600; animation: fadeIn 0.4s ease; }
+  .coach-msg.bot { background: #fff; border: 2px solid rgba(255,107,53,0.18); color: #2d0a00; border-bottom-left-radius: 4px; }
+  .coach-msg.user { background: linear-gradient(135deg,#ff6b35,#ff8c5a); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; max-width: 85%; }
+  .coach-msg.loading { background: #fff; border: 2px solid rgba(255,107,53,0.18); color: rgba(45,10,0,0.4); font-style: italic; }
+  .coach-input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .coach-input { flex: 1; background: #fff; border: 2px solid rgba(255,107,53,0.2); border-radius: 14px; padding: 12px 14px; color: #2d0a00; font-size: 14px; font-family: inherit; font-weight: 600; outline: none; resize: none; min-height: 48px; max-height: 120px; transition: border-color 0.2s; }
+  .coach-input:focus { border-color: #ff6b35; box-shadow: 0 0 0 3px rgba(255,107,53,0.12); }
+  .coach-send { background: linear-gradient(135deg,#ff6b35,#ff8c5a); border: none; border-radius: 14px; width: 48px; height: 48px; font-size: 20px; cursor: pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255,107,53,0.4); transition: transform 0.15s; }
+  .coach-send:active { transform: scale(0.92); }
+  .coach-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .coach-quick-btn { background: rgba(255,107,53,0.08); border: 1.5px solid rgba(255,107,53,0.25); border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: #cc4400; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .coach-quick-btn:hover { background: rgba(255,107,53,0.15); }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes popIn { from { opacity:0; transform:translateX(-50%) scale(0.8); } to { opacity:1; transform:translateX(-50%) scale(1); } }
+  button:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+<div class="blob1"></div>
+<div class="blob2"></div>
+
+<div class="conquista-popup" id="conquistaPopup">
+  <span id="conquistaEmoji" style="font-size:40px"></span>
+  <div>
+    <div class="conquista-pop-title">Conquista desbloqueada!</div>
+    <div class="conquista-pop-name" id="conquistaNome"></div>
+    <div class="conquista-pop-desc" id="conquistaDesc"></div>
+  </div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo"><span>💰</span><span class="logo-text">ACCOUNTABILITY</span></div>
+    <div class="header-right">
+      <div class="streak-pill" id="streakPill">🔥 0</div>
+      <div class="saving-badge" id="savingBadge">✓</div>
+    </div>
+  </div>
+  <div class="frase-bar">
+    <div class="frase-inner">
+      <span class="frase-txt" id="fraseTxt"></span>
+      <span class="frase-autor" id="fraseAutor"></span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- META -->
+  <div class="section active" id="sec-dashboard">
+    <div class="page-header"><span class="page-num">01</span><h2>Sua Meta Financeira</h2></div>
+    <div class="streak-alert" id="streakAlert"></div>
+    <div id="streakCard" class="streak-card" style="display:none">
+      <div class="streak-info">
+        <span class="streak-emoji">🔥</span>
+        <div>
+          <div class="streak-num" id="streakNum">0 dias seguidos</div>
+          <div class="streak-sub" id="streakSub">0 dias produtivos no total</div>
+        </div>
+      </div>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📊 Dias produtivos por semana</div>
+      <div class="chart-bars" id="chartBars"></div>
+    </div>
+    <div id="emptyState" class="empty-state"><span style="font-size:32px">🎯</span><p class="empty-text">Defina sua meta para começar!</p></div>
+    <div id="goalCard" class="goal-card" style="display:none">
+      <div class="goal-badge">OBJETIVO</div>
+      <div class="goal-title" id="goalTitle"></div>
+      <div class="goal-row" id="goalChips"></div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <span class="progress-txt" id="progressTxt">0/7 🔥</span>
+      </div>
+    </div>
+    <div class="form">
+      <label>Qual é sua meta?</label>
+      <input type="text" id="inMeta" placeholder="Ex: Aumentar minha renda em R$1.500/mês" oninput="saveField('meta',this.value)">
+      <label>Valor alvo</label>
+      <input type="text" id="inValor" placeholder="Ex: R$ 1.500,00" oninput="saveField('valorMeta',this.value)">
+      <label>Data limite</label>
+      <input type="date" id="inData" onchange="saveField('dataLimite',this.value)">
+      <label>Consequência se não cumprir</label>
+      <input type="text" id="inConsequencia" placeholder="Ex: Não assisto série na sexta" oninput="saveField('consequencia',this.value)">
+    </div>
+  </div>
+
+  <!-- SEMANA -->
+  <div class="section" id="sec-semana">
+    <div class="page-header"><span class="page-num">02</span><h2>Ações da Semana</h2></div>
+    <p class="hint">3 ações concretas que vão te aproximar da meta.</p>
+    <div id="acoesContainer"></div>
+    <div id="alertConsequencia" class="alert-box" style="display:none"></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="statAcoes">0</div><div class="stat-lbl">ações</div></div>
+      <div class="stat-card"><div class="stat-num" id="statDias">0</div><div class="stat-lbl">dias ativos</div></div>
+      <div class="stat-card"><div class="stat-num" id="statPct">0%</div><div class="stat-lbl">progresso</div></div>
+    </div>
+    <div id="histSection" class="hist-section" style="display:none">
+      <div class="page-header" style="margin-top:0"><span class="page-num">📝</span><h2 style="font-size:18px">Semanas Anteriores</h2></div>
+      <div id="histList"></div>
+    </div>
+  </div>
+
+  <!-- HOJE -->
+  <div class="section" id="sec-hoje">
+    <div class="page-header"><span class="page-num">03</span><h2>Registro de Hoje</h2></div>
+    <p class="hint" id="hintDate"></p>
+    <div class="check-row" id="checkRow" onclick="toggleCheck()">
+      <div class="check-box" id="checkBox"></div>
+      <span class="check-lbl" id="checkLbl">Marcar como dia produtivo</span>
+    </div>
+    <label>O que fiz hoje pelo meu objetivo?</label>
+    <textarea id="inFeito" placeholder="Descreva as ações tomadas..." oninput="saveTodayField('feito',this.value)"></textarea>
+    <label>O que deixei de fazer?</label>
+    <input type="text" id="inSabotagem" placeholder="Ex: Não prospecei novos clientes" oninput="saveTodayField('sabotagem',this.value)">
+    <label>O que vou fazer amanhã para melhorar?</label>
+    <input type="text" id="inAmanha" placeholder="Ex: Prospectar 3 clientes novos" oninput="saveTodayField('amanha',this.value)">
+  </div>
+
+  <!-- CONQUISTAS -->
+  <div class="section" id="sec-conquistas">
+    <div class="page-header"><span class="page-num">04</span><h2>Conquistas</h2></div>
+    <p class="hint" id="conquistasHint"></p>
+    <div class="conquistas-grid" id="conquistasGrid"></div>
+    <div class="page-header" style="margin-top:32px"><span class="page-num">📖</span><h2 style="font-size:18px">Frases do Dia</h2></div>
+    <div class="frase-card">
+      <p class="frase-card-txt" id="fraseCardTxt"></p>
+      <p class="frase-card-autor" id="fraseCardAutor"></p>
+    </div>
+  </div>
+
+  <!-- REVISÃO -->
+  <div class="section" id="sec-revisao">
+    <div class="page-header"><span class="page-num">05</span><h2>Revisão Semanal</h2></div>
+    <p class="hint">Dados da semana + sua reflexão. Toda segunda, 20 minutos.</p>
+
+    <!-- Insights automáticos -->
+    <div class="insights-card" id="insightsCard">
+      <div class="insights-title">📊 Resumo automático da semana</div>
+      <div id="insightsList"></div>
+    </div>
+
+    <!-- Reflexão escrita -->
+    <label>O que funcionou esta semana?</label>
+    <textarea id="inFuncionou" placeholder="Vitórias, acertos, avanços..." oninput="saveRevisao('funcionou',this.value)"></textarea>
+    <label>O que me freou?</label>
+    <textarea id="inFreou" placeholder="Obstáculos, distrações, erros..." oninput="saveRevisao('freou',this.value)"></textarea>
+    <label>Minha aposta para a próxima semana</label>
+    <textarea id="inAposta" placeholder="A mudança mais importante que vou fazer..." oninput="saveRevisao('aposta',this.value)"></textarea>
+    <div id="completeBadge" class="complete-badge" style="display:none">🎉 Revisão da semana concluída!</div>
+
+    <!-- Resultado Mensal -->
+    <div id="mensalSection" style="margin-bottom:28px">
+      <div class="page-header" style="margin-bottom:14px"><span class="page-num">💰</span><h2 style="font-size:18px">Resultado do Mês</h2></div>
+      <p class="hint" style="margin-top:-10px" id="mensalHint"></p>
+      <div id="mensalForm">
+        <label>Quanto ganhei?</label>
+        <input type="text" id="inMensalGerado" placeholder="Ex: R$ 3.200,00" oninput="saveMensal('gerado', this.value)">
+        <label>Quanto economizei?</label>
+        <input type="text" id="inMensalEconomizado" placeholder="Ex: R$ 500,00" oninput="saveMensal('economizado', this.value)">
+        <label>Observações</label>
+        <textarea id="inMensalObs" placeholder="Ex: Fechei um contrato relevante / Mês decepcionante em vendas" oninput="saveMensal('obs', this.value)"></textarea>
+      </div>
+      <div id="mensalHistorico" style="margin-top:20px"></div>
+    </div>
+
+    <!-- Compartilhar -->
+    <div class="share-section">
+      <div class="share-title">📤 Enviar relatório ao parceiro</div>
+      <p style="font-size:12px;color:rgba(45,10,0,0.45);margin-bottom:16px;margin-top:-10px">Escolha o período e envie para seu parceiro de accountability.</p>
+      <div class="period-btns" id="periodBtns">
+        <button class="period-btn active" onclick="selectPeriod(7, this)">7 dias</button>
+        <button class="period-btn" onclick="selectPeriod(30, this)">30 dias</button>
+        <button class="period-btn" onclick="selectPeriod(365, this)">365 dias</button>
+        <button class="period-btn" onclick="selectPeriod(0, this)">Tudo</button>
+      </div>
+    </div>
+
+    <!-- Parceiro de Accountability -->
+    <div class="partner-card" style="margin-top:28px">
+      <div class="partner-card-title">🤝 Parceiro de Accountability</div>
+      <div id="partnerEmpty">
+        <p style="font-size:13px;color:rgba(45,10,0,0.5);margin-bottom:14px;line-height:1.5;">Cadastre um parceiro que receberá seu relatório semanal automaticamente todo domingo.</p>
+        <div class="partner-set">
+          <div class="partner-input-wrap">
+            <label>Nome do parceiro</label>
+            <input type="text" id="partnerName" placeholder="Ex: Maria Silva" style="margin-bottom:10px">
+            <label>WhatsApp (com DDD)</label>
+            <input type="text" id="partnerPhone" placeholder="Ex: 11999998888">
+          </div>
+        </div>
+        <button class="partner-save-btn" style="width:100%" onclick="savePartner()">✓ Salvar parceiro</button>
+      </div>
+      <div id="partnerSet" style="display:none">
+        <div class="partner-info">
+          <div class="partner-avatar">👤</div>
+          <div class="partner-details">
+            <div class="partner-name" id="partnerDisplayName"></div>
+            <div class="partner-contact" id="partnerDisplayContact"></div>
+          </div>
+          <button class="partner-remove" onclick="removePartner()" title="Remover parceiro">✕</button>
+        </div>
+        <button class="partner-send-btn" id="partnerSendBtn" onclick="sendToPartner()">
+          <span>💬</span>
+          <span id="partnerSendTxt">Enviar relatório ao parceiro</span>
+        </button>
+        <div class="partner-last-sent" id="partnerLastSent"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+  <!-- COACH IA -->
+  <div class="section" id="sec-coach">
+    <div class="page-header"><span class="page-num">06</span><h2>Coach IA</h2></div>
+    <div class="coach-intro">
+      <span class="coach-avatar">🤖</span>
+      <div>
+        <div class="coach-intro-title">Seu coach pessoal</div>
+        <div class="coach-intro-sub">Análise dos seus dados reais + feedback personalizado. Pergunte qualquer coisa sobre sua jornada.</div>
+      </div>
+    </div>
+    <div class="coach-quick">
+      <button class="coach-quick-btn" onclick="quickAsk('Como estou me saindo esta semana?')">📊 Como estou?</button>
+      <button class="coach-quick-btn" onclick="quickAsk('O que preciso melhorar agora?')">🎯 O que melhorar?</button>
+      <button class="coach-quick-btn" onclick="quickAsk('Me dê uma estratégia para manter o streak.')">🔥 Manter streak</button>
+      <button class="coach-quick-btn" onclick="quickAsk('Me motive para continuar hoje.')">💪 Me motive</button>
+      <button class="coach-quick-btn" onclick="quickAsk('Analise meu padrão das últimas semanas.')">🔍 Analisar padrão</button>
+    </div>
+    <div class="coach-messages" id="coachMessages"></div>
+    <div class="coach-input-row">
+      <textarea class="coach-input" id="coachInput" placeholder="Pergunte ao seu coach..." rows="1" onkeydown="coachKeyDown(event)"></textarea>
+      <button class="coach-send" onclick="sendCoach()">➤</button>
+    </div>
+  </div>
+<canvas id="shareCanvas"></canvas>
+
+<nav>
+  <button class="nav-btn active" onclick="setView('dashboard')" id="nav-dashboard"><span class="nav-icon">🎯</span><span class="nav-label">Meta</span></button>
+  <button class="nav-btn" onclick="setView('semana')" id="nav-semana"><span class="nav-icon">📅</span><span class="nav-label">Semana</span></button>
+  <button class="nav-btn" onclick="setView('hoje')" id="nav-hoje"><span class="nav-icon">🔥</span><span class="nav-label">Hoje</span></button>
+  <button class="nav-btn" onclick="setView('conquistas')" id="nav-conquistas"><span class="nav-icon">🏆</span><span class="nav-label">Troféus</span></button>
+  <button class="nav-btn" onclick="setView('revisao')" id="nav-revisao"><span class="nav-icon">✅</span><span class="nav-label">Revisão</span></button>
+  <button class="nav-btn" onclick="setView('coach')" id="nav-coach"><span class="nav-icon">🤖</span><span class="nav-label">Coach</span></button>
+</nav>
+
+<script>
+const STORAGE_KEY = 'accountability_data';
+const FRASES = [
+  { texto: "Ser o segundo é ser o primeiro dos perdedores.", autor: "Ayrton Senna" },
+  { texto: "Nada é impossível. A palavra em si diz: 'sou possível'.", autor: "Ayrton Senna" },
+  { texto: "Cada detalhe faz a diferença quando você quer ser o melhor.", autor: "Ayrton Senna" },
+  { texto: "Defina seus medos em vez de seus objetivos.", autor: "Tim Ferriss" },
+  { texto: "O que te diferencia não é a habilidade — é a disposição de fazer o que os outros não querem fazer.", autor: "Tim Ferriss" },
+  { texto: "Foco é dizer não para cem outras boas ideias.", autor: "Tim Ferriss" },
+  { texto: "Calluses on your mind. Stay hard.", autor: "David Goggins" },
+  { texto: "A maioria das pessoas para quando dói. É aí que o trabalho começa.", autor: "David Goggins" },
+  { texto: "Você nunca vai crescer num lugar confortável.", autor: "David Goggins" },
+  { texto: "Não existe versão suavizada do sucesso. Vai doer.", autor: "David Goggins" },
+  { texto: "Disciplina é a sua melhor amiga. Ela vai te trazer o que você quer na vida.", autor: "Jocko Willink" },
+  { texto: "Extreme ownership. Sem desculpas, sem culpar os outros.", autor: "Jocko Willink" },
+  { texto: "Acorde mais cedo. Trabalhe mais. Tenha resultados.", autor: "Jocko Willink" },
+  { texto: "Você tem que se comprometer com a excelência muito antes de ela aparecer.", autor: "Michael Phelps" },
+  { texto: "É o número de vezes que você se levanta que importa.", autor: "Michael Phelps" },
+  { texto: "Treine como se você fosse o número 2. Compita como se fosse o número 1.", autor: "Michael Phelps" },
+  { texto: "Talento é ignorado por mim. O trabalho supera o talento quando o talento não trabalha.", autor: "Kobe Bryant" },
+  { texto: "O jogo nunca para de ser jogado. A questão é: você continua jogando?", autor: "Kobe Bryant" },
+  { texto: "O sucesso é produto do trabalho diário, não de grandes momentos.", autor: "Kobe Bryant" },
+  { texto: "Alguns querem que aconteça, alguns desejam que aconteça, outros fazem acontecer.", autor: "Michael Jordan" },
+  { texto: "Eu falhei mais de 9000 arremessos. É por isso que eu venci.", autor: "Michael Jordan" },
+  { texto: "Limites, como medos, são muitas vezes apenas ilusões.", autor: "Michael Jordan" },
+  { texto: "Não há nada que eu não possa fazer. Nada.", autor: "Conor McGregor" },
+  { texto: "Precisão bate poder. Tempo bate velocidade.", autor: "Conor McGregor" },
+  { texto: "A profundidade do foco produz resultados que o multitasking nunca poderá alcançar.", autor: "Cal Newport" },
+  { texto: "Seja tão bom que não possam te ignorar.", autor: "Cal Newport" },
+  { texto: "O que a mente do homem pode conceber e acreditar, ela pode alcançar.", autor: "Napoleon Hill" },
+  { texto: "Todo sucesso começa com uma ideia definida de propósito.", autor: "Napoleon Hill" },
+  { texto: "O que é medido, melhora.", autor: "Peter Drucker" },
+  { texto: "Eficiência é fazer certo as coisas. Eficácia é fazer as coisas certas.", autor: "Peter Drucker" },
+  { texto: "O melhor jeito de prever o futuro é criá-lo.", autor: "Peter Drucker" },
+  { texto: "Antifragilidade é além de resiliência. É ganhar com o caos.", autor: "Nassim Nicholas Taleb" },
+  { texto: "Não me diga o que você pensa. Me diga o que você tem no portfólio.", autor: "Nassim Nicholas Taleb" },
+  { texto: "Você não sobe ao nível dos seus objetivos. Você cai ao nível dos seus sistemas.", autor: "James Clear" },
+  { texto: "Cada ação é um voto para o tipo de pessoa que você quer ser.", autor: "James Clear" },
+  { texto: "O problema não é a falta de motivação. É a falta de clareza.", autor: "James Clear" },
+  { texto: "Enquanto adiamos, a vida passa.", autor: "Sêneca" },
+  { texto: "Não é porque as coisas são difíceis que não ousamos. É porque não ousamos que são difíceis.", autor: "Sêneca" },
+  { texto: "Você tem poder sobre sua mente, não sobre os eventos externos.", autor: "Marco Aurélio" },
+  { texto: "Execute sem exceções.", autor: "Marco Aurélio" },
+  { texto: "Inverta, sempre inverta.", autor: "Charlie Munger" },
+  { texto: "Vá para a cama mais inteligente do que acordou.", autor: "Charlie Munger" },
+  { texto: "Coma aquele sapo logo cedo. Faça a tarefa mais difícil primeiro.", autor: "Brian Tracy" },
+  { texto: "Mova-se em direção ao seu medo, e o medo desaparece.", autor: "Brian Tracy" },
+  { texto: "Volume resolve quase tudo.", autor: "Alex Hormozi" },
+  { texto: "O mais rico da sala não é quem mais ganha. É quem mais entrega valor.", autor: "Alex Hormozi" },
+  { texto: "Velocidade é uma vantagem competitiva subestimada.", autor: "Eric Schmidt" },
+  { texto: "O obstáculo é o caminho.", autor: "Ryan Holiday" },
+  { texto: "O ego é o inimigo do progresso real.", autor: "Ryan Holiday" },
+  { texto: "Dor mais reflexão igual a progresso.", autor: "Ray Dalio" },
+  { texto: "Princípios claros geram decisões melhores.", autor: "Ray Dalio" },
+  { texto: "Riqueza é o que você não vê. É o carro não comprado, o relógio não comprado.", autor: "Morgan Housel" },
+  { texto: "Poupança é a lacuna entre seu ego e sua renda.", autor: "Morgan Housel" },
+  { texto: "O retorno mais alto na vida não é financeiro. É ter controle sobre o seu tempo.", autor: "Morgan Housel" },
+  { texto: "Lide com as coisas difíceis primeiro. O resto fica mais fácil.", autor: "Ben Horowitz" },
+  { texto: "Compartilhe seu trabalho. Todos os dias. O processo é tão importante quanto o resultado.", autor: "Austin Kleon" },
+  { texto: "Se você não prioriza sua vida, alguém vai priorizar por você.", autor: "Greg McKeown" },
+  { texto: "Quase tudo é ruído. Muito pouco é essencial.", autor: "Greg McKeown" },
+  { texto: "Uma parte de tudo que você ganha é sua para guardar.", autor: "George S. Clason" },
+  { texto: "Conheça o inimigo e conheça a si mesmo; em cem batalhas, nunca estará em perigo.", autor: "Sun Tzu" },
+  { texto: "A vitória suprema é vencer sem lutar.", autor: "Sun Tzu" },
+  { texto: "Oportunidades se multiplicam quando são aproveitadas.", autor: "Sun Tzu" },
+  { texto: "A diferença entre distração e tração é a intenção.", autor: "Nir Eyal" },
+  { texto: "Gerenciar seu tempo começa por gerenciar sua atenção.", autor: "Nir Eyal" },
+  { texto: "O início é a parte mais importante de qualquer trabalho.", autor: "Platão" },
+  { texto: "O homem corajoso é aquele que sente medo, mas mesmo assim vai em frente.", autor: "Platão" },
+  { texto: "Somos o que repetidamente fazemos. A excelência não é um ato, mas um hábito.", autor: "Aristóteles" },
+  { texto: "Conhecer a si mesmo é o início de toda sabedoria.", autor: "Aristóteles" },
+  { texto: "Os ricos não trabalham pelo dinheiro. Fazem o dinheiro trabalhar para eles.", autor: "Robert T. Kiyosaki" },
+  { texto: "Um ativo coloca dinheiro no seu bolso. Um passivo tira.", autor: "Robert T. Kiyosaki" },
+  { texto: "Os ricos jogam para ganhar. Os pobres jogam para não perder.", autor: "T. Harv Eker" },
+  { texto: "Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal.", autor: "T. Harv Eker" },
+  { texto: "Macropaciência. Microvelocidade. Pense em anos, execute em dias.", autor: "Gary Vaynerchuk" },
+  { texto: "Enquanto você dorme, alguém está acordado construindo o seu sonho.", autor: "Gary Vaynerchuk" },
+  { texto: "O conteúdo é o rei, mas a consistência é o reino.", autor: "Gary Vaynerchuk" },
+  { texto: "Sucesso é o seu dever, obrigação e responsabilidade.", autor: "Grant Cardone" },
+  { texto: "Seja obcecado ou seja medíocre. Não existe meio-termo.", autor: "Grant Cardone" },
+  { texto: "Dinheiro não dorme. Por que você dorme demais?", autor: "Grant Cardone" },
+  { texto: "É nos momentos de decisão que seu destino é moldado.", autor: "Tony Robbins" },
+  { texto: "Progresso é igual a felicidade.", autor: "Tony Robbins" },
+  { texto: "A qualidade da sua vida é a qualidade das suas perguntas.", autor: "Tony Robbins" },
+  { texto: "Não é o que acontece com você, mas como você reage que importa.", autor: "Epicteto" },
+  { texto: "Primeiro diga a si mesmo quem você quer ser. Depois faça o que é necessário.", autor: "Epicteto" },
+  { texto: "Riqueza não consiste em ter muitas posses, mas em ter poucas necessidades.", autor: "Epicteto" },
+  // Frases adicionais para chegar em 150
+  // Ayrton Senna
+  { texto: "A diferença entre o possível e o impossível está na determinação.", autor: "Ayrton Senna" },
+  { texto: "Você tem que dar tudo de si, em cada curva, em cada reta.", autor: "Ayrton Senna" },
+  { texto: "Correr riscos faz parte da vida. Não arriscar é não viver.", autor: "Ayrton Senna" },
+  // David Goggins
+  { texto: "Você está apenas na 40% da sua capacidade quando sente vontade de parar.", autor: "David Goggins" },
+  { texto: "Ninguém vai aparecer para salvar você. Só você pode fazer isso.", autor: "David Goggins" },
+  // Tim Ferriss
+  { texto: "Produtividade é para robôs. O que você quer é um trabalho único.", autor: "Tim Ferriss" },
+  { texto: "A vida não precisa ser longa para ser boa.", autor: "Tim Ferriss" },
+  // Jocko Willink
+  { texto: "A vitória não é conquistada no campo de batalha. É conquistada nos treinos.", autor: "Jocko Willink" },
+  { texto: "Quando as coisas ficam difíceis, os fracos saem. Os fortes ficam.", autor: "Jocko Willink" },
+  // Michael Phelps
+  { texto: "Você pode sonhar, criar, desenhar e construir o lugar mais maravilhoso do mundo, mas você precisa de pessoas para tornar esse sonho realidade.", autor: "Michael Phelps" },
+  // Kobe Bryant
+  { texto: "Grandes coisas vêm do trabalho duro e da perseverança. Sem desculpas.", autor: "Kobe Bryant" },
+  { texto: "Quanto do seu potencial você está disposto a explorar?", autor: "Kobe Bryant" },
+  // Michael Jordan
+  { texto: "Talento ganha jogos, mas trabalho em equipe e inteligência ganham campeonatos.", autor: "Michael Jordan" },
+  { texto: "Aceite quem você é, a menos que seja um perdedor.", autor: "Michael Jordan" },
+  // Conor McGregor
+  { texto: "Visualize o nível mais alto. Existe uma razão pela qual estou aqui.", autor: "Conor McGregor" },
+  { texto: "Eu vi o topo. Vou continuar subindo.", autor: "Conor McGregor" },
+  // Cal Newport
+  { texto: "Minimize o trivial. Maximize o que importa.", autor: "Cal Newport" },
+  { texto: "Faça poucas coisas, mas faça-as extraordinariamente bem.", autor: "Cal Newport" },
+  // Napoleon Hill
+  { texto: "Ação é o real indicador de inteligência.", autor: "Napoleon Hill" },
+  { texto: "Se você não consegue fazer grandes coisas, faça coisas pequenas de uma grande maneira.", autor: "Napoleon Hill" },
+  // Peter Drucker
+  { texto: "Não há nada tão inútil quanto fazer eficientemente o que não deveria ser feito.", autor: "Peter Drucker" },
+  { texto: "Concentre-se em suas forças. Coloque-as onde façam diferença.", autor: "Peter Drucker" },
+  // Nassim Nicholas Taleb
+  { texto: "A informação mais valiosa é aquela que te faz agir diferente.", autor: "Nassim Nicholas Taleb" },
+  { texto: "Tome mais riscos pequenos para evitar riscos grandes.", autor: "Nassim Nicholas Taleb" },
+  // James Clear
+  { texto: "Você não precisa ser a vítima das suas circunstâncias. Você pode ser o arquiteto delas.", autor: "James Clear" },
+  { texto: "Os resultados de hoje são o lagging indicator dos hábitos de ontem.", autor: "James Clear" },
+  // Sêneca
+  { texto: "A fortuna favorece os corajosos.", autor: "Sêneca" },
+  { texto: "Começa a viver imediatamente. Conta cada dia como uma vida separada.", autor: "Sêneca" },
+  // Marco Aurélio
+  { texto: "Perca o tempo que tiver para perder, mas não perca o presente.", autor: "Marco Aurélio" },
+  { texto: "Tudo que ouço é opinião, não fato. Tudo que vejo é perspectiva, não verdade.", autor: "Marco Aurélio" },
+  // Charlie Munger
+  { texto: "Mostre-me o incentivo e eu te mostro o resultado.", autor: "Charlie Munger" },
+  { texto: "Invista em si mesmo. Seu cérebro é o maior ativo que você tem.", autor: "Charlie Munger" },
+  // Brian Tracy
+  { texto: "Todas as habilidades de negócios são aprendíveis.", autor: "Brian Tracy" },
+  { texto: "Defina claramente seus objetivos e revise-os diariamente.", autor: "Brian Tracy" },
+  // Alex Hormozi
+  { texto: "Não existe atalho para o lugar que vale a pena chegar.", autor: "Alex Hormozi" },
+  { texto: "A pessoa mais perigosa no mundo é aquela que está disposta a trabalhar enquanto você dorme.", autor: "Alex Hormozi" },
+  // Ray Dalio
+  { texto: "Erros são o melhor professor que você pode ter.", autor: "Ray Dalio" },
+  { texto: "Nunca confunda o que você deseja que seja verdade com o que é verdade.", autor: "Ray Dalio" },
+  // Morgan Housel
+  { texto: "A paciência é a arma mais poderosa nas finanças.", autor: "Morgan Housel" },
+  { texto: "Independência financeira não é sobre quanto você ganha. É sobre quanto você guarda.", autor: "Morgan Housel" },
+  // Ryan Holiday
+  { texto: "A disciplina é a liberdade.", autor: "Ryan Holiday" },
+  { texto: "Cada obstáculo prepara o terreno para o próximo passo.", autor: "Ryan Holiday" },
+  // Grant Cardone
+  { texto: "O maior risco é não arriscar nada.", autor: "Grant Cardone" },
+  { texto: "Sua renda é determinada diretamente pelo quanto você serve o mercado.", autor: "Grant Cardone" },
+  // Gary Vaynerchuk
+  { texto: "Sem hustle, talento é só o que você poderia ter sido.", autor: "Gary Vaynerchuk" },
+  { texto: "Deixe de se preocupar com o que os outros pensam. Foque no que você está construindo.", autor: "Gary Vaynerchuk" },
+  // Tony Robbins
+  { texto: "Onde o foco vai, a energia flui.", autor: "Tony Robbins" },
+  { texto: "Mude sua história, mude sua vida.", autor: "Tony Robbins" },
+  // Epicteto
+  { texto: "A liberdade não é dada. É conquistada através da autodisciplina.", autor: "Epicteto" },
+  { texto: "Cuide das coisas que estão no seu controle. O resto, aceite.", autor: "Epicteto" },
+  // Aristóteles
+  { texto: "A felicidade depende de nós mesmos.", autor: "Aristóteles" },
+  { texto: "Educar a mente sem educar o coração não é educação.", autor: "Aristóteles" },
+  // Robert T. Kiyosaki
+  { texto: "Quanto mais você aprende, mais você ganha.", autor: "Robert T. Kiyosaki" },
+  { texto: "Vencedores não têm medo de perder. Perdedores sim.", autor: "Robert T. Kiyosaki" },
+  // T. Harv Eker
+  { texto: "Mude sua mente, mude sua vida financeira.", autor: "T. Harv Eker" },
+  { texto: "Ricos constroem redes. Pobres buscam emprego.", autor: "T. Harv Eker" },
+  // Sun Tzu
+  { texto: "Apareça onde não são esperados. Ataque onde não estão preparados.", autor: "Sun Tzu" },
+  { texto: "A velocidade é a essência da guerra. Aplique isso nos negócios.", autor: "Sun Tzu" },
+  // Greg McKeown
+  { texto: "O esforço sem resultado é sinal de que você está trabalhando na coisa errada.", autor: "Greg McKeown" },
+  // Platão
+  { texto: "Boa ação praticada com consistência forma o caráter.", autor: "Platão" },
+  // Pelé
+  // George S. Clason
+  { texto: "O homem que deseja a riqueza deve primeiro poupar uma parte do que ganha.", autor: "George S. Clason" },
+  { texto: "O ouro foge do homem que tenta forçar lucros impossíveis.", autor: "George S. Clason" },
+  // Eric Schmidt
+  { texto: "Quando a internet muda tudo, adapte-se primeiro.", autor: "Eric Schmidt" },
+  { texto: "Execute rápido, itere, aprenda. Repita.", autor: "Eric Schmidt" },
+  // Ben Horowitz
+  { texto: "Em tempos difíceis, os líderes mostram quem realmente são.", autor: "Ben Horowitz" },
+  { texto: "A coragem de enfrentar a realidade separa os grandes líderes dos mediocres.", autor: "Ben Horowitz" },
+  // Austin Kleon
+  { texto: "Roube como um artista. Pegue o que inspira e faça seu.", autor: "Austin Kleon" },
+  { texto: "Quanto mais abertamente você compartilha, mais abundância você cria.", autor: "Austin Kleon" },
+  // Nir Eyal
+  { texto: "Ser indistractable é a habilidade mais importante do século 21.", autor: "Nir Eyal" },
+  // Novas frases para chegar em 183
+  // Ayrton Senna
+  { texto: "Racing, competing, it's in my blood. It's part of me, it's part of my life.", autor: "Ayrton Senna" },
+  { texto: "O perigo é parte do jogo. Sem risco, não há vitória.", autor: "Ayrton Senna" },
+  // David Goggins
+  { texto: "A mente desiste muito antes do corpo. Ignore a mente.", autor: "David Goggins" },
+  { texto: "Transforme sua dor em combustível.", autor: "David Goggins" },
+  // Kobe Bryant
+  { texto: "Uma vez que você sabe o que é o trabalho, torna-se uma segunda natureza.", autor: "Kobe Bryant" },
+  { texto: "Acordar às 4h da manhã todos os dias me deu uma vantagem sobre todos.", autor: "Kobe Bryant" },
+  // Michael Jordan
+  { texto: "Para fazer grandes conquistas você precisa começar por pequenas.", autor: "Michael Jordan" },
+  // James Clear
+  { texto: "Identidade muda comportamento. Decida quem você quer ser primeiro.", autor: "James Clear" },
+  { texto: "O ambiente molda o comportamento mais do que a força de vontade.", autor: "James Clear" },
+  // Jocko Willink
+  { texto: "Não há más equipes. Só há maus líderes.", autor: "Jocko Willink" },
+  // Tim Ferriss
+  { texto: "Se o estresse é algo que você não pode resolver, pare de pensar nele.", autor: "Tim Ferriss" },
+  // Tony Robbins
+  { texto: "As pessoas não são preguiçosas. Elas simplesmente têm metas impotentes.", autor: "Tony Robbins" },
+  { texto: "Lembre-se: recompensar a excelência é essencial para sustentá-la.", autor: "Tony Robbins" },
+  // Epicteto
+  { texto: "Procure não que os acontecimentos ocorram como você deseja, mas deseje que ocorram como são.", autor: "Epicteto" },
+  // Marco Aurélio
+  { texto: "O impedimento à ação faz avançar a ação. O que está no caminho torna-se o caminho.", autor: "Marco Aurélio" },
+  // Sêneca
+  { texto: "Toda hora cuida-se de si mesma.", autor: "Sêneca" },
+  // Ray Dalio
+  { texto: "Sonhe grande. Teste as realidades. Corrija as falhas.", autor: "Ray Dalio" },
+  // Morgan Housel
+  { texto: "Compounding funciona melhor quando você deixa em paz por muito tempo.", autor: "Morgan Housel" },
+  // Charlie Munger
+  { texto: "Leia muito. Todo dia. É o investimento com o maior retorno possível.", autor: "Charlie Munger" },
+  // Grant Cardone
+  { texto: "Mediocre goals criam mediocridade. Pense 10 vezes maior.", autor: "Grant Cardone" },
+  // Gary Vaynerchuk
+  { texto: "Pare de reclamar. Comece a executar. Simples assim.", autor: "Gary Vaynerchuk" },
+  // Alex Hormozi
+  { texto: "A razão pela qual as pessoas não chegam lá é porque param cedo demais.", autor: "Alex Hormozi" },
+  // Nassim Taleb
+  { texto: "Leia livros clássicos. O tempo já filtrou o que é essencial.", autor: "Nassim Nicholas Taleb" },
+  // Greg McKeown
+  { texto: "Diga não para quase tudo para poder dizer sim para o que importa.", autor: "Greg McKeown" },
+  // Ben Horowitz
+  { texto: "Construir algo do zero é o ato mais criativo que um ser humano pode fazer.", autor: "Ben Horowitz" },
+  // Austin Kleon
+  { texto: "Faça o trabalho que você quer ver no mundo.", autor: "Austin Kleon" },
+  // Eric Schmidt
+  { texto: "Cerque-se de pessoas mais inteligentes que você e aprenda sem parar.", autor: "Eric Schmidt" },
+  // Nir Eyal
+  { texto: "Planeje seu tempo com intenção ou outros farão isso por você.", autor: "Nir Eyal" },
+  { texto: "A grandeza não é uma função de circunstância. É uma questão de escolha consciente.", autor: "James Clear" },
+  { texto: "Não espere pela motivação. Crie o momento de agir.", autor: "David Goggins" },
+  // Cristiano Ronaldo
+  { texto: "O talento sem trabalho não é nada.", autor: "Cristiano Ronaldo" },
+  { texto: "Satisfação é o inimigo do progresso.", autor: "Cristiano Ronaldo" },
+  { texto: "Não existe nada impossível para quem trabalha.", autor: "Cristiano Ronaldo" },
+  { texto: "As pessoas que me dizem que não posso fazer algo me motivam ainda mais.", autor: "Cristiano Ronaldo" },
+  { texto: "Eu não acordo para treinar. Eu acordo para ser o melhor.", autor: "Cristiano Ronaldo" },
+];
+
+const CONQUISTAS = [
+  { id: 'primeiro_dia', emoji: '🌱', nome: 'Primeiro Passo', desc: '1 dia produtivo marcado',      req: (s,t) => t>=1  },
+  { id: 'tres_dias',    emoji: '🔥', nome: 'Em Chamas',      desc: '3 dias produtivos seguidos',   req: (s,t) => s>=3  },
+  { id: 'semana',       emoji: '🏆', nome: 'Semana Completa',desc: '7 dias produtivos seguidos',   req: (s,t) => s>=7  },
+  { id: 'quinze',       emoji: '💎', nome: 'Diamante',       desc: '15 dias produtivos seguidos',  req: (s,t) => s>=15 },
+  { id: 'trinta',       emoji: '👑', nome: 'Lenda',          desc: '30 dias produtivos seguidos',  req: (s,t) => s>=30 },
+  { id: 'sessenta',     emoji: '⭐', nome: 'Consistente',    desc: '60 dias produtivos seguidos',  req: (s,t) => s>=60 },
+  { id: 'noventa',      emoji: '🚀', nome: 'Imparável',      desc: '90 dias produtivos seguidos',  req: (s,t) => s>=90 },
+];
+
+let fraseIdx = (new Date().getDate() + new Date().getMonth()*31) % FRASES.length;
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { meta:'', valorMeta:'', dataLimite:'', consequencia:'', semanas:{}, conquistas:[] }; }
+  catch { return { meta:'', valorMeta:'', dataLimite:'', consequencia:'', semanas:{}, conquistas:[] }; }
+}
+function setData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+function getWeekKey(date=new Date()) {
+  const d = new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay());
+  return d.toISOString().split('T')[0];
+}
+function getTodayKey() { return new Date().toISOString().split('T')[0]; }
+
+function calcStreak(semanas) {
+  const allDias = {};
+  Object.values(semanas||{}).forEach(sem => Object.entries(sem.dias||{}).forEach(([k,v]) => { if(v.check) allDias[k]=true; }));
+  let streak=0; const total=Object.keys(allDias).length; const today=new Date();
+  for(let i=0;i<365;i++) { const d=new Date(today); d.setDate(d.getDate()-i); const k=d.toISOString().split('T')[0]; if(allDias[k]) streak++; else if(i>0) break; }
+  return {streak, total, allDias};
+}
+
+function getPrevWeekDays(semanas) {
+  const prevDate = new Date(); prevDate.setDate(prevDate.getDate()-7);
+  const prevWk = getWeekKey(prevDate);
+  const sem = semanas?.[prevWk] || {};
+  return Object.values(sem.dias||{}).filter(v=>v.check).length;
+}
+
+function showSaving() {
+  const el = document.getElementById('savingBadge');
+  el.style.display='block'; setTimeout(()=>el.style.display='none', 900);
+}
+
+function saveField(field, val) {
+  const d=getData(); d[field]=val; setData(d); showSaving(); renderAll();
+}
+
+function getWeek() {
+  const d=getData(); const wk=getWeekKey();
+  return d.semanas?.[wk] || { acoes:['','',''], dias:{}, revisao:{funcionou:'',freou:'',aposta:''} };
+}
+
+function saveWeek(week) {
+  const d=getData(); const wk=getWeekKey();
+  d.semanas=d.semanas||{}; d.semanas[wk]=week; setData(d); showSaving(); renderAll();
+}
+
+function saveTodayField(field, val) {
+  const week=getWeek(); const tk=getTodayKey();
+  const today=week.dias?.[tk]||{feito:'',gerado:'',sabotagem:'',check:false};
+  today[field]=val; week.dias=week.dias||{}; week.dias[tk]=today; saveWeek(week);
+}
+
+function saveRevisao(field, val) {
+  const week=getWeek(); week.revisao=week.revisao||{};
+  week.revisao[field]=val; saveWeek(week);
+  const r=week.revisao;
+  document.getElementById('completeBadge').style.display=(r.funcionou&&r.freou&&r.aposta)?'block':'none';
+  renderPartner();
+  renderMensal();
+}
+
+function toggleCheck() {
+  const week=getWeek(); const tk=getTodayKey();
+  const today=week.dias?.[tk]||{feito:'',gerado:'',sabotagem:'',check:false};
+  const wasOff=!today.check; today.check=!today.check;
+  week.dias=week.dias||{}; week.dias[tk]=today;
+  const d=getData(); const wk=getWeekKey(); d.semanas=d.semanas||{}; d.semanas[wk]=week;
+  if(wasOff) {
+    const {streak,total}=calcStreak(d.semanas);
+    const unlocked=CONQUISTAS.find(c=>c.req(streak,total)&&!(d.conquistas||[]).includes(c.id));
+    if(unlocked){d.conquistas=[...(d.conquistas||[]),unlocked.id];showConquista(unlocked);}
+  }
+  setData(d); showSaving(); renderAll();
+}
+
+function showConquista(c) {
+  document.getElementById('conquistaEmoji').textContent=c.emoji;
+  document.getElementById('conquistaNome').textContent=c.nome;
+  document.getElementById('conquistaDesc').textContent=c.desc;
+  const el=document.getElementById('conquistaPopup'); el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function nextFrase() { fraseIdx=(fraseIdx+1)%FRASES.length; renderFrase(); }
+
+function renderFrase() {
+  const f=FRASES[fraseIdx];
+  document.getElementById('fraseTxt').textContent='"'+f.texto+'"';
+  document.getElementById('fraseAutor').textContent='— '+f.autor;
+  document.getElementById('fraseCardTxt').textContent='"'+f.texto+'"';
+  document.getElementById('fraseCardAutor').textContent='— '+f.autor;
+}
+
+// setView replaced by coach version below
+
+function saveAcao(i, val) {
+  const week=getWeek(); week.acoes=week.acoes||['','','']; week.acoes[i]=val; saveWeek(week);
+}
+
+// ── INSIGHTS automáticos ──────────────────────────────
+function buildInsights(d, week, checkedDays, streak, total) {
+  const prevDays = getPrevWeekDays(d.semanas);
+  const acoesDef = (week.acoes||[]).filter(a=>a.trim()).length;
+  const insights = [];
+
+  // Dias ativos vs semana anterior
+  if(checkedDays > prevDays && prevDays > 0)
+    insights.push({icon:'📈', txt:`<strong>${checkedDays} dias ativos</strong> — melhor que a semana anterior (${prevDays} dias). Continue!`});
+  else if(checkedDays < prevDays && prevDays > 0)
+    insights.push({icon:'📉', txt:`<strong>${checkedDays} dias ativos</strong> — abaixo da semana anterior (${prevDays} dias). O que mudou?`});
+  else if(checkedDays === 7)
+    insights.push({icon:'🏅', txt:`<strong>Semana perfeita!</strong> 7 de 7 dias produtivos. Isso é disciplina de alto nível.`});
+  else
+    insights.push({icon:'📅', txt:`<strong>${checkedDays} de 7 dias</strong> produtivos esta semana.`});
+
+  // Streak
+  if(streak >= 7)
+    insights.push({icon:'🔥', txt:`Streak de <strong>${streak} dias seguidos</strong>. Não quebre agora!`});
+  else if(streak === 0)
+    insights.push({icon:'⚡', txt:`Sem streak ativo. Marque hoje como produtivo para começar uma sequência.`});
+  else
+    insights.push({icon:'🔥', txt:`Streak atual: <strong>${streak} dias</strong>. Faltam ${7-streak} para a conquista Semana Completa.`});
+
+  // Ações definidas
+  if(acoesDef === 3)
+    insights.push({icon:'✅', txt:`Todas as <strong>3 ações da semana</strong> foram definidas. Foco total.`});
+  else if(acoesDef === 0)
+    insights.push({icon:'📋', txt:`Nenhuma ação semanal definida ainda. Vá na aba Semana e defina suas 3 prioridades.`});
+  else
+    insights.push({icon:'📋', txt:`<strong>${acoesDef} de 3 ações</strong> definidas. Complete as demais para ter mais clareza.`});
+
+  // Conquistas
+  const unlocked = (d.conquistas||[]).length;
+  insights.push({icon:'🏆', txt:`<strong>${unlocked} conquistas</strong> desbloqueadas de ${CONQUISTAS.length} disponíveis.`});
+
+  return insights;
+}
+
+// ── COMPARTILHAR WhatsApp ─────────────────────────────
+function shareWhatsApp() {
+  const d = getData();
+  const wk = getWeekKey();
+  const week = d.semanas?.[wk] || {};
+  const { streak, total } = calcStreak(d.semanas);
+  const checkedDays = Object.values(week.dias || {}).filter(v => v.check).length;
+  const pct = Math.round((checkedDays / 7) * 100);
+  const meta = d.meta || 'Meta não definida';
+  const conquistas = (d.conquistas || []).length;
+  const acoes = (week.acoes || []).filter(a => a.trim());
+  const prevDays = getPrevWeekDays(d.semanas);
+  const diff = checkedDays - prevDays;
+  const diffTxt = diff > 0 ? '+' + diff + ' vs semana anterior 📈' : diff < 0 ? diff + ' vs semana anterior 📉' : 'igual à semana anterior';
+
+  // Diário da semana
+  const weekDias = week.dias || {};
+  const diasRegistrados = Object.entries(weekDias)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 7);
+
+  let diarioTxt = '';
+  diasRegistrados.forEach(([key, dia]) => {
+    const dt = new Date(key + 'T12:00:00').toLocaleDateString('pt-BR', {weekday:'short', day:'numeric', month:'short'});
+    const produtivo = dia.check ? '✅' : '❌';
+    diarioTxt += produtivo + ' *' + dt + '*';
+    if (dia.feito) diarioTxt += '\n   📌 Fiz: ' + dia.feito;
+    if (dia.sabotagem) diarioTxt += '\n   ⚠️ Deixei de fazer: ' + dia.sabotagem;
+    if (dia.amanha) diarioTxt += '\n   ➡️ Amanhã farei: ' + dia.amanha;
+    diarioTxt += '\n';
+  });
+
+  // Revisão semanal
+  const rev = week.revisao || {};
+  let revisaoTxt = '';
+  if (rev.funcionou) revisaoTxt += '✅ *O que funcionou:* ' + rev.funcionou + '\n';
+  if (rev.freou) revisaoTxt += '🚧 *O que me freou:* ' + rev.freou + '\n';
+  if (rev.aposta) revisaoTxt += '🎯 *Aposta da próxima semana:* ' + rev.aposta + '\n';
+
+  // Resultado mensal
+  const mk = getMonthKey();
+  const mes = d.meses?.[mk] || {};
+  let mensalTxt = '';
+  if (mes.gerado) mensalTxt += '💰 *Quanto ganhei:* ' + mes.gerado + '\n';
+  if (mes.economizado) mensalTxt += '🏦 *Quanto economizei:* ' + mes.economizado + '\n';
+  if (mes.obs) mensalTxt += '📝 *Observações:* ' + mes.obs + '\n';
+
+  const linhas = [
+    '📊 *ACCOUNTABILITY — Relatório Semanal*',
+    new Date().toLocaleDateString('pt-BR', {day:'numeric', month:'long', year:'numeric'}),
+    '',
+    '━━━━━━━━━━━━━━━━',
+    '🎯 *RESUMO*',
+    '━━━━━━━━━━━━━━━━',
+    '🎯 Meta: ' + meta,
+    '📅 Dias produtivos: ' + checkedDays + '/7 (' + pct + '%) — ' + diffTxt,
+    '🔥 Streak: ' + streak + ' dias seguidos',
+    '⭐ Total histórico: ' + total + ' dias',
+    '🏆 Conquistas: ' + conquistas + '/' + CONQUISTAS.length,
+  ];
+
+  if (acoes.length > 0) {
+    linhas.push('📋 Ações:');
+    acoes.forEach((a, i) => linhas.push('   ' + (i+1) + '. ' + a));
+  }
+
+  if (diarioTxt) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('📅 *DIÁRIO DA SEMANA*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push(diarioTxt.trim());
+  }
+
+  if (revisaoTxt) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('📝 *REVISÃO SEMANAL*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push(revisaoTxt.trim());
+  }
+
+  if (mensalTxt) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('💰 *RESULTADO MENSAL*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push(mensalTxt.trim());
+  }
+
+  linhas.push('');
+  linhas.push(checkedDays >= 6 ? '💪 Semana excelente!' : checkedDays >= 4 ? '👊 Semana sólida.' : checkedDays >= 2 ? '⚡ Semana abaixo do esperado.' : '🚨 Semana difícil.');
+  linhas.push('');
+  linhas.push('_Gerado pelo app Accountability 💰_');
+
+  const texto = linhas.join('\n');
+
+
+  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  window.open(url, '_blank');
+}
+
+
+// ── COMPARTILHAR como imagem ──────────────────────────
+function shareImage() {
+  const d=getData(); const wk=getWeekKey(); const week=d.semanas?.[wk]||{};
+  const {streak,total}=calcStreak(d.semanas);
+  const checkedDays=Object.values(week.dias||{}).filter(v=>v.check).length;
+  const pct=Math.round((checkedDays/7)*100);
+  const meta=d.meta||'Minha Meta';
+
+  const canvas=document.getElementById('shareCanvas');
+  canvas.width=600; canvas.height=380;
+  const ctx=canvas.getContext('2d');
+
+  // Background gradient
+  const grad=ctx.createLinearGradient(0,0,600,380);
+  grad.addColorStop(0,'#ff6b35'); grad.addColorStop(1,'#ff8c5a');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,600,380);
+
+  // Overlay circles
+  ctx.fillStyle='rgba(255,255,255,0.07)';
+  ctx.beginPath(); ctx.arc(520,60,140,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(80,320,100,0,Math.PI*2); ctx.fill();
+
+  // Title
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.font='bold 13px Futura, Century Gothic, Trebuchet MS, sans-serif';
+  ctx.letterSpacing='3px';
+  ctx.fillText('💰  ACCOUNTABILITY', 40, 50);
+
+  // Meta
+  ctx.fillStyle='#fff';
+  ctx.font='bold 22px Futura, Century Gothic, Trebuchet MS, sans-serif';
+  const metaShort = meta.length>42 ? meta.substring(0,42)+'…' : meta;
+  ctx.fillText(metaShort, 40, 90);
+
+  // Divider
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(40,108); ctx.lineTo(560,108); ctx.stroke();
+
+  // Stats
+  const stats=[
+    {label:'DIAS ATIVOS', value:checkedDays+'/7'},
+    {label:'STREAK',      value:streak+' dias'},
+    {label:'PROGRESSO',   value:pct+'%'},
+    {label:'CONQUISTAS',  value:(d.conquistas||[]).length+'/'+CONQUISTAS.length},
+  ];
+  stats.forEach((st,i)=>{
+    const x=40+(i*135);
+    ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.beginPath(); ctx.roundRect(x,120,120,80,12); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.75)';
+    ctx.font='bold 9px Futura, Century Gothic, Trebuchet MS, sans-serif';
+    ctx.fillText(st.label, x+10, 145);
+    ctx.fillStyle='#fff';
+    ctx.font='bold 26px Futura, Century Gothic, Trebuchet MS, sans-serif';
+    ctx.fillText(st.value, x+10, 180);
+  });
+
+  // Progress bar
+  ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.beginPath(); ctx.roundRect(40,222,520,10,5); ctx.fill();
+  ctx.fillStyle='#04e762';
+  ctx.shadowColor='#04e762'; ctx.shadowBlur=8;
+  ctx.beginPath(); ctx.roundRect(40,222,Math.max(10,520*(pct/100)),10,5); ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Week dots
+  const dayL=['D','S','T','Q','Q','S','S'];
+  const allDias={};
+  Object.values(d.semanas||{}).forEach(sem=>Object.entries(sem.dias||{}).forEach(([k,v])=>{if(v.check)allDias[k]=true;}));
+  for(let i=0;i<7;i++){
+    const dd=new Date(); dd.setDate(dd.getDate()-(6-i));
+    const k=dd.toISOString().split('T')[0]; const on=allDias[k];
+    const x=40+i*68;
+    ctx.fillStyle=on?'#04e762':'rgba(255,255,255,0.2)';
+    ctx.beginPath(); ctx.arc(x+16,260,14,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=on?'#003d1a':'rgba(255,255,255,0.6)';
+    ctx.font='bold 9px Futura, Century Gothic, sans-serif';
+    ctx.fillText(dayL[dd.getDay()],x+11,264);
+  }
+
+  // Motivational line
+  const linha=checkedDays>=5?'💪 Semana forte! Continue assim.':checkedDays>=3?'👊 Bom progresso. Mais foco!':'⚡ Hora de reagir. Você consegue!';
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  ctx.font='600 14px Futura, Century Gothic, Trebuchet MS, sans-serif';
+  ctx.fillText(linha, 40, 310);
+
+  // Footer
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.font='11px Futura, Century Gothic, sans-serif';
+  ctx.fillText('app accountability 💰  •  '+new Date().toLocaleDateString('pt-BR'), 40, 355);
+
+  // Download
+  const link=document.createElement('a');
+  link.download='accountability-'+new Date().toISOString().split('T')[0]+'.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+}
+
+function renderAll() {
+  const d=getData(); const wk=getWeekKey(); const tk=getTodayKey();
+  const week=d.semanas?.[wk]||{acoes:['','',''],dias:{},revisao:{}};
+  const today=week.dias?.[tk]||{feito:'',gerado:'',sabotagem:'',check:false};
+  const {streak,total,allDias}=calcStreak(d.semanas);
+  const checkedDays=Object.values(week.dias||{}).filter(x=>x.check).length;
+  const pct=d.valorMeta?Math.min(100,Math.round((checkedDays/7)*100)):0;
+
+  // Streak pill
+  const pill=document.getElementById('streakPill');
+  if(streak>0){pill.style.display='block';pill.textContent='🔥 '+streak;}else pill.style.display='none';
+
+  // Streak alert banner
+  const sa=document.getElementById('streakAlert');
+  const todayChecked=today.check;
+  if(streak>0 && !todayChecked){
+    sa.className='streak-alert danger show';
+    sa.innerHTML='⚠️ <span>Seu streak de <strong>'+streak+' dias</strong> está em risco! Marque hoje como produtivo.</span>';
+  } else if(streak>0 && todayChecked) {
+    const prevDays=getPrevWeekDays(d.semanas);
+    if(checkedDays>prevDays && prevDays>0){
+      sa.className='streak-alert congrats show';
+      sa.innerHTML='🎉 <span>Você superou a semana anterior! '+checkedDays+' vs '+prevDays+' dias. Incrível!</span>';
+    } else sa.className='streak-alert';
+  } else sa.className='streak-alert';
+
+  // Streak card
+  const sc=document.getElementById('streakCard');
+  if(total>0){
+    sc.style.display='block';
+    document.getElementById('streakNum').textContent=streak+' dias seguidos';
+    document.getElementById('streakSub').textContent=total+' dias produtivos no total';
+    const dots=document.getElementById('streakDots'); dots.innerHTML='';
+    const dayL=['D','S','T','Q','Q','S','S'];
+    for(let i=0;i<7;i++){
+      const dd=new Date(); dd.setDate(dd.getDate()-(6-i));
+      const k=dd.toISOString().split('T')[0]; const on=allDias[k];
+      dots.innerHTML+=`<div class="streak-dot-wrap"><div class="streak-dot${on?' on':''}"></div><span class="streak-day-lbl">${dayL[dd.getDay()]}</span></div>`;
+    }
+  } else sc.style.display='none';
+
+  // Chart
+  const cb=document.getElementById('chartBars'); cb.innerHTML='';
+  for(let i=3;i>=0;i--){
+    const dd=new Date(); dd.setDate(dd.getDate()-i*7);
+    const wki=getWeekKey(dd); const semi=d.semanas?.[wki]||{};
+    const dias=Object.values(semi.dias||{}).filter(v=>v.check).length;
+    const h=Math.max(4,Math.round((dias/7)*100));
+    const lbl=i===0?'Esta':i===1?'Ant.':'-'+i+'s';
+    const op=0.4+((3-i)*0.2);
+    cb.innerHTML+=`<div class="chart-col"><div class="chart-bar-wrap"><div class="chart-bar" style="height:${h}%;opacity:${op}"></div></div><div class="chart-val">${dias}</div><div class="chart-lbl">${lbl}</div></div>`;
+  }
+
+  // Goal
+  const hasGoal=d.meta&&d.valorMeta;
+  document.getElementById('emptyState').style.display=hasGoal?'none':'flex';
+  const gc=document.getElementById('goalCard');
+  if(hasGoal){
+    gc.style.display='block';
+    document.getElementById('goalTitle').textContent=d.meta;
+    let chips=''; if(d.valorMeta) chips+=`<div class="chip">💰 ${d.valorMeta}</div>`; if(d.dataLimite) chips+=`<div class="chip">📆 ${new Date(d.dataLimite+'T12:00:00').toLocaleDateString('pt-BR')}</div>`;
+    document.getElementById('goalChips').innerHTML=chips;
+    document.getElementById('progressFill').style.width=pct+'%';
+    document.getElementById('progressTxt').textContent=checkedDays+'/7 🔥';
+  } else gc.style.display='none';
+
+  // Form
+  document.getElementById('inMeta').value=d.meta||'';
+  document.getElementById('inValor').value=d.valorMeta||'';
+  document.getElementById('inData').value=d.dataLimite||'';
+  document.getElementById('inConsequencia').value=d.consequencia||'';
+
+  // Acoes
+  const ac=document.getElementById('acoesContainer'); ac.innerHTML='';
+  (week.acoes||['','','']).forEach((a,i)=>{
+    ac.innerHTML+=`<div class="action-row"><div class="action-bubble">${i+1}</div><input type="text" value="${a.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}" placeholder="Ação ${i+1}..." oninput="saveAcao(${i},this.value)"></div>`;
+  });
+
+  // Alert consequencia
+  const alt=document.getElementById('alertConsequencia');
+  if(d.consequencia){alt.style.display='flex';alt.innerHTML=`<span>⚡</span><span><strong>Consequência:</strong> ${d.consequencia}</span>`;}else alt.style.display='none';
+
+  // Stats
+  document.getElementById('statAcoes').textContent=(week.acoes||[]).filter(a=>a.trim()).length;
+  document.getElementById('statDias').textContent=checkedDays;
+  document.getElementById('statPct').textContent=pct+'%';
+
+  // History
+  const hist=Object.entries(d.semanas||{}).filter(([k])=>k!==wk).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  const hs=document.getElementById('histSection'); const hl=document.getElementById('histList');
+  if(hist.length>0){
+    hs.style.display='block'; hl.innerHTML='';
+    hist.forEach(([key,sem])=>{
+      const dias=Object.values(sem.dias||{}).filter(dd=>dd.check).length;
+      const acoes=(sem.acoes||[]).filter(a=>a.trim()).length;
+      const dt=new Date(key+'T12:00:00');
+      hl.innerHTML+=`<div class="hist-card"><div class="hist-date">Semana de ${dt.toLocaleDateString('pt-BR',{day:'numeric',month:'short'})}</div><div class="hist-row"><span class="hist-chip">🔥 ${dias} dias</span><span class="hist-chip">📋 ${acoes} ações</span>${sem.revisao?.aposta?'<span class="hist-chip done">✅ revisado</span>':''}</div></div>`;
+    });
+  } else hs.style.display='none';
+
+  // Hoje
+  document.getElementById('hintDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const cr=document.getElementById('checkRow'); const cb2=document.getElementById('checkBox');
+  if(today.check){cr.classList.add('on');cb2.classList.add('on');cb2.textContent='✓';document.getElementById('checkLbl').textContent='🔥 Dia produtivo marcado!';}
+  else{cr.classList.remove('on');cb2.classList.remove('on');cb2.textContent='';document.getElementById('checkLbl').textContent='Marcar como dia produtivo';}
+  document.getElementById('inFeito').value=today.feito||'';
+  document.getElementById('inSabotagem').value=today.sabotagem||'';
+  document.getElementById('inAmanha').value=today.amanha||'';
+
+  // Conquistas
+  const unlocked=d.conquistas||[];
+  document.getElementById('conquistasHint').textContent=unlocked.length+' de '+CONQUISTAS.length+' desbloqueadas • '+streak+' dias de streak';
+  const cg=document.getElementById('conquistasGrid'); cg.innerHTML='';
+  CONQUISTAS.forEach(c=>{
+    const on=unlocked.includes(c.id);
+    cg.innerHTML+=`<div class="conquista-card${on?' unlocked':''}"><div class="conquista-emoji">${on?c.emoji:'🔒'}</div><div class="conquista-nome">${c.nome}</div><div class="conquista-desc">${c.desc}</div></div>`;
+  });
+
+  // Revisão — insights automáticos
+  const il=document.getElementById('insightsList'); il.innerHTML='';
+  buildInsights(d,week,checkedDays,streak,total).forEach(ins=>{
+    il.innerHTML+=`<div class="insight-row"><span class="insight-icon">${ins.icon}</span><span>${ins.txt}</span></div>`;
+  });
+
+  // Revisão — reflexão
+  document.getElementById('inFuncionou').value=week.revisao?.funcionou||'';
+  document.getElementById('inFreou').value=week.revisao?.freou||'';
+  document.getElementById('inAposta').value=week.revisao?.aposta||'';
+  const r=week.revisao||{};
+  document.getElementById('completeBadge').style.display=(r.funcionou&&r.freou&&r.aposta)?'block':'none';
+  renderPartner();
+  renderMensal();
+}
+
+
+// ── COACH IA ─────────────────────────────────────────
+let coachHistory = [];
+
+function buildCoachContext() {
+  const d = getData();
+  const wk = getWeekKey();
+  const week = d.semanas?.[wk] || {};
+  const { streak, total } = calcStreak(d.semanas);
+  const checkedDays = Object.values(week.dias || {}).filter(v => v.check).length;
+  const prevDays = getPrevWeekDays(d.semanas);
+  const acoes = (week.acoes || []).filter(a => a.trim());
+
+  // Últimos 3 dias registrados
+  const recentDays = Object.entries(week.dias || {})
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 3)
+    .map(([k, v]) => k + ': produtivo=' + v.check + ', feito="' + (v.feito||'') + '", gerado="' + (v.gerado||'') + '", sabotagem="' + (v.sabotagem||'') + '"')
+    .join(' | ');
+
+  return `Você é um coach de alta performance focado em accountability financeira. Seja direto, motivador e específico. Use os dados reais do usuário para personalizar cada resposta. Máximo 4 parágrafos curtos.
+
+DADOS DO USUÁRIO:
+- Meta: ${d.meta || 'não definida'}
+- Valor alvo: ${d.valorMeta || 'não definido'}
+- Prazo: ${d.dataLimite || 'não definido'}
+- Consequência: ${d.consequencia || 'não definida'}
+- Streak atual: ${streak} dias seguidos
+- Total de dias produtivos: ${total}
+- Dias ativos esta semana: ${checkedDays}/7
+- Dias ativos semana anterior: ${prevDays}
+- Ações desta semana: ${acoes.join(', ') || 'nenhuma definida'}
+- Conquistas desbloqueadas: ${(d.conquistas||[]).length}/${7}
+- Registros recentes: ${recentDays || 'nenhum ainda'}`;
+}
+
+async function sendCoach(customMsg) {
+  const input = document.getElementById('coachInput');
+  const msg = customMsg || input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  addCoachMsg(msg, 'user');
+  const loading = addCoachMsg('Analisando seus dados...', 'loading');
+
+  coachHistory.push({ role: 'user', content: msg });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildCoachContext(),
+        messages: coachHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Não consegui processar. Tente novamente.';
+    loading.remove();
+    addCoachMsg(reply, 'bot');
+    coachHistory.push({ role: 'assistant', content: reply });
+    if (coachHistory.length > 20) coachHistory = coachHistory.slice(-20);
+  } catch (e) {
+    loading.remove();
+    addCoachMsg('Erro de conexão. Verifique sua internet e tente novamente.', 'bot');
+  }
+}
+
+function addCoachMsg(text, type) {
+  const container = document.getElementById('coachMessages');
+  const div = document.createElement('div');
+  div.className = 'coach-msg ' + type;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function quickAsk(msg) {
+  document.getElementById('coachInput').value = msg;
+  sendCoach(msg);
+}
+
+function coachKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCoach(); }
+}
+
+// Saudação inicial do coach
+function initCoach() {
+  const d = getData();
+  const { streak } = calcStreak(d.semanas);
+  const wk = getWeekKey();
+  const week = d.semanas?.[wk] || {};
+  const checkedDays = Object.values(week.dias || {}).filter(v => v.check).length;
+  const msgs = document.getElementById('coachMessages');
+  if (msgs.children.length === 0) {
+    let greeting = '';
+    if (!d.meta) greeting = '👋 Olá! Vejo que você ainda não definiu sua meta. Comece pela aba Meta — é o primeiro passo para qualquer resultado real. Quando terminar, volte aqui!';
+    else if (streak >= 7) greeting = `🔥 Impressionante! ${streak} dias de streak. Isso é consistência de alto nível. O que posso fazer por você hoje?`;
+    else if (checkedDays === 0) greeting = `👊 Ainda sem dias marcados esta semana. A semana ainda não acabou — quer uma estratégia para recuperar o ritmo?`;
+    else greeting = `💪 Olá! Você está com ${streak} dias de streak e ${checkedDays} dias ativos esta semana. Em que posso te ajudar hoje?`;
+    addCoachMsg(greeting, 'bot');
+  }
+}
+
+const _origSetView = setView;
+function setView(v) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  if (v === 'coach') initCoach();
+}
+
+
+
+// ── PERÍODO DO RELATÓRIO ─────────────────────────────
+let selectedPeriod = 7; // default 7 days
+
+function selectPeriod(days, btn) {
+  selectedPeriod = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPartner();
+}
+
+function buildReportForPeriod(days) {
+  const d = getData();
+  const { streak, total, allDias } = calcStreak(d.semanas);
+
+  // Filter days based on period
+  const cutoff = new Date();
+  if (days > 0) cutoff.setDate(cutoff.getDate() - days);
+  else cutoff.setFullYear(2000); // "all" = very old date
+
+  // All diary entries within period
+  const allEntries = [];
+  Object.entries(d.semanas || {}).forEach(([wk, sem]) => {
+    Object.entries(sem.dias || {}).forEach(([dk, dia]) => {
+      if (new Date(dk + 'T12:00:00') >= cutoff) {
+        allEntries.push({ date: dk, dia, acoes: sem.acoes || [] });
+      }
+    });
+  });
+  allEntries.sort((a, b) => b.date.localeCompare(a.date));
+
+  // Productive days in period
+  const prodDays = allEntries.filter(e => e.dia.check).length;
+  const totalDays = allEntries.length;
+  const pct = totalDays > 0 ? Math.round((prodDays / totalDays) * 100) : 0;
+
+  // Revisões within period
+  const revisoes = [];
+  Object.entries(d.semanas || {}).forEach(([wk, sem]) => {
+    const wkDate = new Date(wk + 'T12:00:00');
+    if (wkDate >= cutoff && sem.revisao && (sem.revisao.funcionou || sem.revisao.freou || sem.revisao.aposta)) {
+      revisoes.push({ wk, rev: sem.revisao });
+    }
+  });
+  revisoes.sort((a, b) => b.wk.localeCompare(a.wk));
+
+  // Meses within period
+  const meses = [];
+  Object.entries(d.meses || {}).forEach(([mk, mes]) => {
+    const mDate = new Date(mk + '-01T12:00:00');
+    if (mDate >= cutoff && (mes.gerado || mes.economizado || mes.obs)) {
+      meses.push({ mk, mes });
+    }
+  });
+  meses.sort((a, b) => b.mk.localeCompare(a.mk));
+
+  const periodLabel = days === 7 ? 'últimos 7 dias' : days === 30 ? 'últimos 30 dias' : days === 365 ? 'último ano' : 'histórico completo';
+  const conquistas = (d.conquistas || []).length;
+
+  // Build lines array
+  const linhas = [
+    '📊 *ACCOUNTABILITY — Relatório (' + periodLabel + ')*',
+    new Date().toLocaleDateString('pt-BR', {day:'numeric', month:'long', year:'numeric'}),
+    '',
+    '━━━━━━━━━━━━━━━━',
+    '🎯 *RESUMO*',
+    '━━━━━━━━━━━━━━━━',
+    '🎯 Meta: ' + (d.meta || 'não definida'),
+    '📅 Dias produtivos: ' + prodDays + '/' + totalDays + ' (' + pct + '%)',
+    '🔥 Streak atual: ' + streak + ' dias seguidos',
+    '⭐ Total histórico: ' + total + ' dias',
+    '🏆 Conquistas: ' + conquistas + '/' + CONQUISTAS.length,
+  ];
+
+  // Last week actions
+  const wk = getWeekKey();
+  const week = d.semanas?.[wk] || {};
+  const acoes = (week.acoes || []).filter(a => a.trim());
+  if (acoes.length > 0) {
+    linhas.push('📋 Ações desta semana:');
+    acoes.forEach((a, i) => linhas.push('   ' + (i+1) + '. ' + a));
+  }
+
+  // Diary entries
+  if (allEntries.length > 0) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('📅 *DIÁRIO (' + periodLabel + ')*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    allEntries.forEach(({ date, dia }) => {
+      const dt = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {weekday:'short', day:'numeric', month:'short'});
+      linhas.push((dia.check ? '✅' : '❌') + ' *' + dt + '*');
+      if (dia.feito) linhas.push('   📌 Fiz: ' + dia.feito);
+      if (dia.sabotagem) linhas.push('   ⚠️ Deixei de fazer: ' + dia.sabotagem);
+      if (dia.amanha) linhas.push('   ➡️ Amanhã farei: ' + dia.amanha);
+    });
+  }
+
+  // Revisões
+  if (revisoes.length > 0) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('📝 *REVISÕES SEMANAIS*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    revisoes.forEach(({ wk, rev }) => {
+      const dt = new Date(wk + 'T12:00:00').toLocaleDateString('pt-BR', {day:'numeric', month:'short'});
+      linhas.push('*Semana de ' + dt + '*');
+      if (rev.funcionou) linhas.push('✅ Funcionou: ' + rev.funcionou);
+      if (rev.freou) linhas.push('🚧 Freou: ' + rev.freou);
+      if (rev.aposta) linhas.push('🎯 Aposta: ' + rev.aposta);
+    });
+  }
+
+  // Meses
+  if (meses.length > 0) {
+    linhas.push('');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    linhas.push('💰 *RESULTADOS MENSAIS*');
+    linhas.push('━━━━━━━━━━━━━━━━');
+    meses.forEach(({ mk, mes }) => {
+      const [year, month] = mk.split('-');
+      const label = new Date(year, month-1, 1).toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+      linhas.push('*' + label + '*');
+      if (mes.gerado) linhas.push('💰 Ganhei: ' + mes.gerado);
+      if (mes.economizado) linhas.push('🏦 Economizei: ' + mes.economizado);
+      if (mes.obs) linhas.push('📝 Obs: ' + mes.obs);
+    });
+  }
+
+  linhas.push('');
+  linhas.push(prodDays >= totalDays*0.85 ? '💪 Performance excelente no período!' : prodDays >= totalDays*0.6 ? '👊 Bom desempenho no período.' : '⚡ Há espaço para melhorar.');
+  linhas.push('');
+  linhas.push('_Relatório gerado pelo app Accountability 💰_');
+
+  return linhas.join('\n');
+}
+
+// ── PARCEIRO DE ACCOUNTABILITY ────────────────────────
+function savePartner() {
+  const name = document.getElementById('partnerName').value.trim();
+  const phone = document.getElementById('partnerPhone').value.trim().replace(/\D/g,'');
+  if (!name || !phone) { alert('Preencha nome e WhatsApp do parceiro.'); return; }
+  const d = getData();
+  d.partner = { name, phone };
+  setData(d);
+  renderPartner();
+  showSaving();
+}
+
+function removePartner() {
+  if (!confirm('Remover parceiro de accountability?')) return;
+  const d = getData();
+  delete d.partner;
+  setData(d);
+  renderPartner();
+  renderMensal();
+}
+
+function renderPartner() {
+  const d = getData();
+  const empty = document.getElementById('partnerEmpty');
+  const set = document.getElementById('partnerSet');
+  if (d.partner) {
+    empty.style.display = 'none';
+    set.style.display = 'block';
+    document.getElementById('partnerDisplayName').textContent = d.partner.name;
+    document.getElementById('partnerDisplayContact').textContent = '📱 ' + formatPhone(d.partner.phone);
+    // Check if sent this week
+    const wk = getWeekKey();
+    const sentThisWeek = d.partnerLastSent === wk;
+    const btn = document.getElementById('partnerSendBtn');
+    const txt = document.getElementById('partnerSendTxt');
+    const lastEl = document.getElementById('partnerLastSent');
+    if (sentThisWeek) {
+      btn.classList.remove('pending');
+      txt.textContent = '✓ Relatório enviado esta semana';
+      lastEl.textContent = 'Próximo envio: domingo que vem';
+    } else {
+      btn.classList.add('pending');
+      txt.textContent = '🔔 Enviar relatório para ' + d.partner.name;
+      lastEl.textContent = d.partnerLastSent ? 'Último envio: semana de ' + new Date(d.partnerLastSent + 'T12:00:00').toLocaleDateString('pt-BR', {day:'numeric',month:'short'}) : 'Ainda não enviado';
+    }
+  } else {
+    empty.style.display = 'block';
+    set.style.display = 'none';
+  }
+}
+
+function formatPhone(phone) {
+  if (phone.length === 11) return '(' + phone.slice(0,2) + ') ' + phone.slice(2,7) + '-' + phone.slice(7);
+  if (phone.length === 10) return '(' + phone.slice(0,2) + ') ' + phone.slice(2,6) + '-' + phone.slice(6);
+  return phone;
+}
+
+function sendToPartner() {
+  const d = getData();
+  if (!d.partner) return;
+  const texto = buildReportForPeriod(selectedPeriod);
+  const phone = '55' + d.partner.phone;
+  const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(texto);
+  window.open(url, '_blank');
+  const wk = getWeekKey();
+  d.partnerLastSent = wk;
+  setData(d);
+  renderPartner();
+}
+
+
+// Check on Sundays if partner report is pending
+function checkSundayReminder() {
+  const d = getData();
+  if (!d.partner) return;
+  const today = new Date();
+  if (today.getDay() !== 0) return; // only Sunday
+  const wk = getWeekKey();
+  if (d.partnerLastSent === wk) return;
+  // Show alert on dashboard
+  const sa = document.getElementById('streakAlert');
+  if (sa) {
+    sa.className = 'streak-alert danger show';
+    sa.innerHTML = '🤝 <span>Domingo! Lembre de enviar o relatório semanal para <strong>' + d.partner.name + '</strong>.</span>';
+  }
+}
+
+
+// ── RESULTADO MENSAL ─────────────────────────────────
+function getMonthKey() {
+  const d = new Date();
+  // If we're in the first 5 days, we're still filling last month's data
+  const target = d.getDate() <= 7
+    ? new Date(d.getFullYear(), d.getMonth()-1, 1)
+    : d;
+  return target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0');
+}
+
+function saveMensal(field, val) {
+  const d = getData();
+  const mk = getMonthKey();
+  d.meses = d.meses || {};
+  d.meses[mk] = d.meses[mk] || {};
+  d.meses[mk][field] = val;
+  setData(d);
+  showSaving();
+  renderMensal();
+}
+
+function renderMensal() {
+  const d = getData();
+  const mk = getMonthKey();
+  const mes = d.meses?.[mk] || {};
+  const monthName = new Date().toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+
+  const today = new Date();
+  const day = today.getDate();
+  const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const prevMonthName = prevMonth.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  const hint = day <= 5
+    ? 'Registre os resultados de ' + prevMonthName + ' até o dia 07.'
+    : 'Registre os resultados do mês anterior até o dia 07.';
+  document.getElementById('mensalHint').textContent = hint;
+  document.getElementById('inMensalGerado').value = mes.gerado || '';
+  document.getElementById('inMensalEconomizado').value = mes.economizado || '';
+  document.getElementById('inMensalObs').value = mes.obs || '';
+
+  // Histórico dos últimos 5 meses
+  const hist = Object.entries(d.meses || {})
+    .filter(([k]) => k !== mk)
+    .sort((a,b) => b[0].localeCompare(a[0]));
+
+  const el = document.getElementById('mensalHistorico');
+  if (hist.length > 0) {
+    el.innerHTML = '<div style="font-size:10px;font-weight:800;letter-spacing:0.15em;color:#ff6b35;text-transform:uppercase;margin-bottom:12px">📅 Meses anteriores</div>';
+    hist.forEach(([key, m]) => {
+      const [year, month] = key.split('-');
+      const label = new Date(year, month-1, 1).toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+      el.innerHTML += '<div class="hist-card">' +
+        '<div class="hist-date">' + label + '</div>' +
+        '<div class="hist-row">' +
+        (m.gerado ? '<span class="hist-chip">💰 ' + m.gerado + '</span>' : '') +
+        (m.economizado ? '<span class="hist-chip">🏦 ' + m.economizado + '</span>' : '') +
+        (m.obs ? '<span class="hist-chip done">📝 anotado</span>' : '') +
+        '</div></div>';
+    });
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+renderFrase();
+renderAll();
+renderMensal();
+renderPartner();
+checkSundayReminder();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:' && !location.hostname.includes('claude')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
+</body>
+</html>
